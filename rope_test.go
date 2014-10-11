@@ -115,3 +115,37 @@ func TestConcat(t *testing.T) {
 		}
 	}
 }
+
+func TestSplit(t *testing.T) {
+	r := NewFromBytes([]byte(`foobarbaz`))
+	r1, r2 := r.Split(0)
+	if !bytes.Equal(r1.Bytes(), []byte{}) {
+		t.Fatal()
+	}
+	if !bytes.Equal(r2.Bytes(), []byte("foobarbaz")) {
+		t.Fatal()
+	}
+	r1, r2 = r.Split(9)
+	if !bytes.Equal(r1.Bytes(), []byte("foobarbaz")) {
+		t.Fatal()
+	}
+	if !bytes.Equal(r2.Bytes(), []byte{}) {
+		t.Fatal()
+	}
+
+	bs := make([]byte, 2048)
+	n, err := rand.Read(bs)
+	if n != len(bs) || err != nil {
+		t.Fatalf("%d %v", n, err)
+	}
+	r = NewFromBytes(bs)
+	for i := 0; i <= len(bs); i++ {
+		r1, r2 := r.Split(i)
+		if !bytes.Equal(r1.Bytes(), bs[:i]) {
+			t.Fatal()
+		}
+		if !bytes.Equal(r2.Bytes(), bs[i:]) {
+			t.Fatal()
+		}
+	}
+}

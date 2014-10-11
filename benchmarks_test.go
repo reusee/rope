@@ -18,3 +18,17 @@ func BenchmarkIndex(b *testing.B) {
 		r.Index(3000)
 	}
 }
+
+func BenchmarkSplit(b *testing.B) {
+	bytes := make([]byte, 4096)
+	n, err := rand.Read(bytes)
+	if n != len(bytes) || err != nil {
+		b.Fatalf("%d %v", n, err)
+	}
+	r := NewFromBytes(bytes)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		r.Split(3000)
+	}
+}

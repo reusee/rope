@@ -33,9 +33,10 @@ func (r *Rope) Index(i int) byte {
 	if i >= r.weight {
 		return r.right.Index(i - r.weight)
 	}
-	if r.left != nil {
+	if r.left != nil { // non leaf
 		return r.left.Index(i)
 	}
+	// leaf
 	return r.content[i]
 }
 
@@ -70,4 +71,21 @@ func (r *Rope) Concat(r2 *Rope) *Rope {
 		left:   r,
 		right:  r2,
 	}
+}
+
+func (r *Rope) Split(n int) (out1, out2 *Rope) {
+	if len(r.content) > 0 { // leaf
+		out1 = NewFromBytes(r.content[:n])
+		out2 = NewFromBytes(r.content[n:])
+	} else { // non leaf
+		var r1 *Rope
+		if n >= r.weight { // at right subtree
+			r1, out2 = r.right.Split(n - r.weight)
+			out1 = r.left.Concat(r1)
+		} else { // at left subtree
+			out1, r1 = r.left.Split(n)
+			out2 = r1.Concat(r.right)
+		}
+	}
+	return
 }
