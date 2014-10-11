@@ -1,6 +1,7 @@
 package rope
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 )
@@ -19,7 +20,7 @@ func (r *Rope) Equal(r2 *Rope) bool {
 	if r.Weight != r2.Weight {
 		return false
 	}
-	if r.Text != r2.Text {
+	if !(bytes.Equal(r.Bytes, r2.Bytes)) {
 		return false
 	}
 	if !r.Left.Equal(r2.Left) {
@@ -36,7 +37,7 @@ func (r *Rope) Dump() {
 }
 
 func (r *Rope) dump(level int) {
-	p("%s%d |%s|\n", strings.Repeat("  ", level), r.Weight, r.Text)
+	p("%s%d |%s|\n", strings.Repeat("  ", level), r.Weight, r.Bytes)
 	if r.Left != nil {
 		r.Left.dump(level + 1)
 	}

@@ -11,8 +11,7 @@ func BenchmarkIndex(b *testing.B) {
 	if n != len(bytes) || err != nil {
 		b.Fatalf("%d %v", n, err)
 	}
-	str := string(bytes)
-	r := NewFromString(str)
+	r := NewFromBytes(bytes)
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {

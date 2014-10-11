@@ -4,37 +4,37 @@ type Rope struct {
 	Weight int
 	Left   *Rope
 	Right  *Rope
-	Text   string
+	Bytes  []byte
 }
 
 var MaxLengthPerNode = 128
 
-func NewFromString(str string) *Rope {
-	if len(str) == 0 {
+func NewFromBytes(bs []byte) *Rope {
+	if len(bs) == 0 {
 		return nil
 	}
-	if len(str) < MaxLengthPerNode {
+	if len(bs) < MaxLengthPerNode {
 		return &Rope{
-			Weight: len(str),
-			Text:   str,
+			Weight: len(bs),
+			Bytes:  bs,
 		}
 	}
-	leftLen := len(str) / 2
+	leftLen := len(bs) / 2
 	return &Rope{
 		Weight: leftLen,
-		Left:   NewFromString(str[:leftLen]),
-		Right:  NewFromString(str[leftLen:]),
+		Left:   NewFromBytes(bs[:leftLen]),
+		Right:  NewFromBytes(bs[leftLen:]),
 	}
 }
 
-func (r *Rope) Index(i int) uint8 {
+func (r *Rope) Index(i int) byte {
 	if i >= r.Weight {
 		return r.Right.Index(i - r.Weight)
 	}
 	if r.Left != nil {
 		return r.Left.Index(i)
 	}
-	return r.Text[i]
+	return r.Bytes[i]
 }
 
 func (r *Rope) Len() int {
