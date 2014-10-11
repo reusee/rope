@@ -1,6 +1,7 @@
 package rope
 
 import (
+	"regexp"
 	"testing"
 	"unicode/utf8"
 )
@@ -54,6 +55,15 @@ func TestRuneReader(t *testing.T) {
 	reader = r.NewRuneReader()
 	c, n, err := reader.ReadRune()
 	if c != utf8.RuneError || n != 1 || err == nil {
+		t.Fatal()
+	}
+}
+
+func TestRuneRegexp(t *testing.T) {
+	r := NewFromBytes([]byte(`我能吞zuo下da玻si璃而不伤身体`))
+	reader := r.NewRuneReader()
+	loc := regexp.MustCompile(`[a-z]+`).FindReaderIndex(reader)
+	if string(r.Sub(loc[0], loc[1]-loc[0])) != "zuo" {
 		t.Fatal()
 	}
 }
