@@ -20,14 +20,15 @@ func NewFromBytes(bs []byte) (ret *Rope) {
 		return nil
 	}
 	slots := make([]*Rope, 32)
+	var slotIndex int
+	var r *Rope
 	for blockIndex := 0; blockIndex < len(bs)/MaxLengthPerNode; blockIndex++ {
-		block := bs[blockIndex*MaxLengthPerNode : (blockIndex+1)*MaxLengthPerNode]
-		r := &Rope{
+		r = &Rope{
 			height:  1,
 			weight:  MaxLengthPerNode,
-			content: block,
+			content: bs[blockIndex*MaxLengthPerNode : (blockIndex+1)*MaxLengthPerNode],
 		}
-		slotIndex := 0
+		slotIndex = 0
 		for slots[slotIndex] != nil {
 			r = &Rope{
 				height: slotIndex + 2,
