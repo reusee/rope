@@ -22,7 +22,7 @@ func TestNewFromBytes(t *testing.T) {
 
 	// short bytes
 	r = NewFromBytes([]byte(`foo`))
-	if !r.Equal(&Rope{
+	if !r.StructEqual(&Rope{
 		weight:  3,
 		content: []byte("foo"),
 	}) {
@@ -32,7 +32,7 @@ func TestNewFromBytes(t *testing.T) {
 
 	// long bytes
 	r = NewFromBytes([]byte(`foobarbaz`))
-	if !r.Equal(&Rope{
+	if !r.StructEqual(&Rope{
 		weight: 4,
 		left: &Rope{
 			weight:  4,

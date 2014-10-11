@@ -2,10 +2,10 @@ package rope
 
 import "testing"
 
-func TestEqual(t *testing.T) {
+func TestStructEqual(t *testing.T) {
 	r1 := &Rope{}
 	var r2 *Rope
-	if r1.Equal(r2) {
+	if r1.StructEqual(r2) {
 		t.Fatal()
 	}
 
@@ -15,7 +15,7 @@ func TestEqual(t *testing.T) {
 	r2 = &Rope{
 		weight: 2,
 	}
-	if r1.Equal(r2) {
+	if r1.StructEqual(r2) {
 		t.Fatal()
 	}
 
@@ -25,7 +25,7 @@ func TestEqual(t *testing.T) {
 	r2 = &Rope{
 		content: []byte("bar"),
 	}
-	if r1.Equal(r2) {
+	if r1.StructEqual(r2) {
 		t.Fatal()
 	}
 
@@ -35,7 +35,7 @@ func TestEqual(t *testing.T) {
 	r2 = &Rope{
 		left: &Rope{},
 	}
-	if r1.Equal(r2) {
+	if r1.StructEqual(r2) {
 		t.Fatal()
 	}
 
@@ -47,7 +47,7 @@ func TestEqual(t *testing.T) {
 			weight: 3,
 		},
 	}
-	if r1.Equal(r2) {
+	if r1.StructEqual(r2) {
 		t.Fatal()
 	}
 }

@@ -10,7 +10,7 @@ var (
 	p = fmt.Printf
 )
 
-func (r *Rope) Equal(r2 *Rope) bool {
+func (r *Rope) StructEqual(r2 *Rope) bool {
 	if r == nil && r2 == nil {
 		return true
 	}
@@ -23,10 +23,10 @@ func (r *Rope) Equal(r2 *Rope) bool {
 	if !(bytes.Equal(r.content, r2.content)) {
 		return false
 	}
-	if !r.left.Equal(r2.left) {
+	if !r.left.StructEqual(r2.left) {
 		return false
 	}
-	if !r.right.Equal(r2.right) {
+	if !r.right.StructEqual(r2.right) {
 		return false
 	}
 	return true
