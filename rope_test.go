@@ -57,14 +57,14 @@ func TestIndex(t *testing.T) {
 		}
 	}
 
-	bytes := make([]byte, 4096)
-	n, err := rand.Read(bytes)
-	if n != len(bytes) || err != nil {
+	bs = make([]byte, 4096)
+	n, err := rand.Read(bs)
+	if n != len(bs) || err != nil {
 		t.Fatalf("%d %v", n, err)
 	}
-	r = NewFromBytes(bytes)
-	for i := 0; i < len(bytes); i++ {
-		if r.Index(i) != bytes[i] {
+	r = NewFromBytes(bs)
+	for i := 0; i < len(bs); i++ {
+		if r.Index(i) != bs[i] {
 			t.Fatal()
 		}
 	}
@@ -77,6 +77,20 @@ func TestLen(t *testing.T) {
 	for i := 0; i < 1024; i++ {
 		n := mrand.Intn(2048)
 		if NewFromBytes(bytes.Repeat([]byte("x"), n)).Len() != n {
+			t.Fatal()
+		}
+	}
+}
+
+func TestBytes(t *testing.T) {
+	for i := 0; i < 1024; i++ {
+		bs := make([]byte, i)
+		n, err := rand.Read(bs)
+		if n != len(bs) || err != nil {
+			t.Fatalf("%d %v", n, err)
+		}
+		r := NewFromBytes(bs)
+		if !bytes.Equal(r.Bytes(), bs) {
 			t.Fatal()
 		}
 	}

@@ -1,5 +1,7 @@
 package rope
 
+import "bytes"
+
 type Rope struct {
 	weight  int
 	left    *Rope
@@ -42,4 +44,22 @@ func (r *Rope) Len() int {
 		return 0
 	}
 	return r.weight + r.right.Len()
+}
+
+func (r *Rope) Bytes() []byte {
+	buf := new(bytes.Buffer)
+	r.collectBytes(buf)
+	return buf.Bytes()
+}
+
+func (r *Rope) collectBytes(buf *bytes.Buffer) {
+	if r == nil {
+		return
+	}
+	if len(r.content) > 0 {
+		buf.Write(r.content)
+	} else {
+		r.left.collectBytes(buf)
+		r.right.collectBytes(buf)
+	}
 }
