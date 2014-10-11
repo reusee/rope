@@ -74,7 +74,13 @@ func (r *Rope) Concat(r2 *Rope) *Rope {
 }
 
 func (r *Rope) Split(n int) (out1, out2 *Rope) {
+	if r == nil {
+		return
+	}
 	if len(r.content) > 0 { // leaf
+		if n > len(r.content) { // offset overflow
+			n = len(r.content)
+		}
 		out1 = NewFromBytes(r.content[:n])
 		out2 = NewFromBytes(r.content[n:])
 	} else { // non leaf
@@ -93,4 +99,10 @@ func (r *Rope) Split(n int) (out1, out2 *Rope) {
 func (r *Rope) Insert(n int, bs []byte) *Rope {
 	r1, r2 := r.Split(n)
 	return r1.Concat(NewFromBytes(bs)).Concat(r2)
+}
+
+func (r *Rope) Delete(n, l int) *Rope {
+	r1, r2 := r.Split(n)
+	_, r2 = r2.Split(l)
+	return r1.Concat(r2)
 }

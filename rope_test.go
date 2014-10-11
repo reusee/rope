@@ -177,3 +177,48 @@ func TestInsert(t *testing.T) {
 		}
 	}
 }
+
+func TestDelete(t *testing.T) {
+	r := NewFromBytes([]byte(`foobarbaz`))
+	cases := []struct {
+		start, length int
+		str           string
+	}{
+		{0, 0, "foobarbaz"},
+		{0, 1, "oobarbaz"},
+		{0, 2, "obarbaz"},
+		{0, 9, ""},
+		{1, 1, "fobarbaz"},
+		{1, 2, "fbarbaz"},
+		{4, 4, "foobz"},
+		{5, 3, "foobaz"},
+		{9, 0, "foobarbaz"},
+	}
+	for _, c := range cases {
+		s := string(r.Delete(c.start, c.length).Bytes())
+		if s != c.str {
+			p("%s %s\n", s, c.str)
+			t.Fatal()
+		}
+	}
+
+	bs := make([]byte, 128)
+	n, err := rand.Read(bs)
+	if n != len(bs) || err != nil {
+		t.Fatalf("%d %v", n, err)
+	}
+	r = NewFromBytes(bs)
+	for i := 0; i <= len(bs); i++ {
+		for j := 0; j <= len(bs); j++ {
+			k := i + j
+			if k > len(bs) {
+				k = len(bs)
+			}
+			expected := bytes.Join([][]byte{bs[:i], bs[k:]}, nil)
+			bs1 := r.Delete(i, j).Bytes()
+			if !bytes.Equal(bs1, expected) {
+				t.Fatal()
+			}
+		}
+	}
+}
