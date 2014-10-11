@@ -61,9 +61,6 @@ func NewFromBytes(bs []byte) (ret *Rope) {
 	return
 }
 
-//TODO func NewFromReader
-//TODO func (r *Rope) Read
-
 func (r *Rope) Index(i int) byte {
 	if i >= r.weight {
 		return r.right.Index(i - r.weight)
@@ -84,19 +81,19 @@ func (r *Rope) Len() int {
 
 func (r *Rope) Bytes() []byte {
 	buf := new(bytes.Buffer)
-	r.collectBytes(buf)
+	r.putBuffer(buf)
 	return buf.Bytes()
 }
 
-func (r *Rope) collectBytes(buf *bytes.Buffer) {
+func (r *Rope) putBuffer(buf *bytes.Buffer) {
 	if r == nil {
 		return
 	}
 	if len(r.content) > 0 {
 		buf.Write(r.content)
 	} else {
-		r.left.collectBytes(buf)
-		r.right.collectBytes(buf)
+		r.left.putBuffer(buf)
+		r.right.putBuffer(buf)
 	}
 }
 
