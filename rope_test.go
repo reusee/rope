@@ -149,3 +149,31 @@ func TestSplit(t *testing.T) {
 		}
 	}
 }
+
+func TestInsert(t *testing.T) {
+	r := NewFromBytes([]byte(`foobar`))
+	if string(r.Insert(0, []byte(`baz`)).Bytes()) != "bazfoobar" {
+		t.Fatal()
+	}
+	if string(r.Insert(6, []byte(`baz`)).Bytes()) != "foobarbaz" {
+		t.Fatal()
+	}
+	if string(r.Insert(2, []byte(`baz`)).Bytes()) != "fobazobar" {
+		t.Fatal()
+	}
+
+	bs := make([]byte, 2048)
+	n, err := rand.Read(bs)
+	if n != len(bs) || err != nil {
+		t.Fatalf("%d %v", n, err)
+	}
+	r = NewFromBytes(bs)
+	for i := 0; i <= len(bs); i++ {
+		bs1 := r.Insert(i, []byte("FOOBARBAZ")).Bytes()
+		bs2 := bytes.Join([][]byte{bs[:i], []byte("FOOBARBAZ"), bs[i:]}, nil)
+		if !bytes.Equal(bs1, bs2) {
+			p("%s %s\n", bs1, bs2)
+			t.Fatal()
+		}
+	}
+}

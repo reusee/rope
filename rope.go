@@ -89,3 +89,8 @@ func (r *Rope) Split(n int) (out1, out2 *Rope) {
 	}
 	return
 }
+
+func (r *Rope) Insert(n int, bs []byte) *Rope {
+	r1, r2 := r.Split(n)
+	return r1.Concat(NewFromBytes(bs)).Concat(r2)
+}

@@ -6,7 +6,7 @@ import (
 )
 
 func BenchmarkIndex(b *testing.B) {
-	bytes := make([]byte, 4096)
+	bytes := make([]byte, 409600)
 	n, err := rand.Read(bytes)
 	if n != len(bytes) || err != nil {
 		b.Fatalf("%d %v", n, err)
@@ -15,12 +15,12 @@ func BenchmarkIndex(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		r.Index(3000)
+		r.Index(300000)
 	}
 }
 
 func BenchmarkSplit(b *testing.B) {
-	bytes := make([]byte, 4096)
+	bytes := make([]byte, 409600)
 	n, err := rand.Read(bytes)
 	if n != len(bytes) || err != nil {
 		b.Fatalf("%d %v", n, err)
@@ -29,6 +29,20 @@ func BenchmarkSplit(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		r.Split(3000)
+		r.Split(300000)
+	}
+}
+
+func BenchmarkInsert(b *testing.B) {
+	bytes := make([]byte, 409600)
+	n, err := rand.Read(bytes)
+	if n != len(bytes) || err != nil {
+		b.Fatalf("%d %v", n, err)
+	}
+	r := NewFromBytes(bytes)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		r.Insert(300000, []byte("foobar"))
 	}
 }
