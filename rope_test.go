@@ -3,6 +3,7 @@ package rope
 import (
 	"bytes"
 	"crypto/rand"
+	"math"
 	mrand "math/rand"
 	"os"
 	"testing"
@@ -242,5 +243,20 @@ func TestSub(t *testing.T) {
 				t.Fatal()
 			}
 		}
+	}
+}
+
+func TestBalance(t *testing.T) {
+	r := NewFromBytes(nil)
+	n := 4096
+	for i := 0; i < n; i++ {
+		r = r.Concat(NewFromBytes([]byte("x")))
+	}
+	if r.Len() != n {
+		t.Fatal()
+	}
+	maxHeight := int(math.Log2(float64(n/MaxLengthPerNode))+1) * 2
+	if r.height > maxHeight {
+		t.Fatal()
 	}
 }

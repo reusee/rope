@@ -1,8 +1,12 @@
 package rope
 
-import "bytes"
+import (
+	"bytes"
+	"math"
+)
 
 type Rope struct {
+	height  int
 	weight  int
 	left    *Rope
 	right   *Rope
@@ -11,23 +15,37 @@ type Rope struct {
 
 var MaxLengthPerNode = 128
 
-func NewFromBytes(bs []byte) *Rope {
+//TODO reimplement
+func NewFromBytes(bs []byte) (ret *Rope) {
 	if len(bs) == 0 {
 		return nil
 	}
 	if len(bs) < MaxLengthPerNode {
 		return &Rope{
+			height:  1,
 			weight:  len(bs),
 			content: bs,
 		}
 	}
 	leftLen := len(bs) / 2
-	return &Rope{
+	ret = &Rope{
+		height: 0,
 		weight: leftLen,
 		left:   NewFromBytes(bs[:leftLen]),
 		right:  NewFromBytes(bs[leftLen:]),
 	}
+	if ret.left != nil {
+		ret.height = ret.left.height
+	}
+	if ret.right != nil && ret.right.height > ret.height {
+		ret.height = ret.right.height
+	}
+	ret.height++
+	return
 }
+
+//TODO func NewFromReader
+//TODO func (r *Rope) Read
 
 func (r *Rope) Index(i int) byte {
 	if i >= r.weight {
@@ -65,12 +83,26 @@ func (r *Rope) collectBytes(buf *bytes.Buffer) {
 	}
 }
 
-func (r *Rope) Concat(r2 *Rope) *Rope {
-	return &Rope{
+func (r *Rope) Concat(r2 *Rope) (ret *Rope) {
+	ret = &Rope{
+		height: 0,
 		weight: r.Len(),
 		left:   r,
 		right:  r2,
 	}
+	if ret.left != nil {
+		ret.height = ret.left.height
+	}
+	if ret.right != nil && ret.right.height > ret.height {
+		ret.height = ret.right.height
+	}
+	ret.height++
+	// check and rebalance
+	l := int((math.Ceil(math.Log2(float64((ret.Len()/MaxLengthPerNode)+1))) + 1) * 1.5)
+	if ret.height > l {
+		ret = NewFromBytes(ret.Bytes())
+	}
+	return
 }
 
 func (r *Rope) Split(n int) (out1, out2 *Rope) {
