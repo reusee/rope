@@ -63,3 +63,11 @@ func (r *Rope) collectBytes(buf *bytes.Buffer) {
 		r.right.collectBytes(buf)
 	}
 }
+
+func (r *Rope) Concat(r2 *Rope) *Rope {
+	return &Rope{
+		weight: r.Len(),
+		left:   r,
+		right:  r2,
+	}
+}

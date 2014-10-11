@@ -95,3 +95,23 @@ func TestBytes(t *testing.T) {
 		}
 	}
 }
+
+func TestConcat(t *testing.T) {
+	for i := 0; i < 1024; i++ {
+		bs1 := make([]byte, i)
+		n, err := rand.Read(bs1)
+		if n != len(bs1) || err != nil {
+			t.Fatalf("%d %v", n, err)
+		}
+		bs2 := make([]byte, i)
+		n, err = rand.Read(bs2)
+		if n != len(bs2) || err != nil {
+			t.Fatalf("%d %v", n, err)
+		}
+		r1 := NewFromBytes(bs1)
+		r2 := NewFromBytes(bs2)
+		if !bytes.Equal(r1.Concat(r2).Bytes(), bytes.Join([][]byte{bs1, bs2}, nil)) {
+			t.Fatal()
+		}
+	}
+}
