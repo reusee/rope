@@ -222,3 +222,25 @@ func TestDelete(t *testing.T) {
 		}
 	}
 }
+
+func TestSub(t *testing.T) {
+	bs := make([]byte, 128)
+	n, err := rand.Read(bs)
+	if n != len(bs) || err != nil {
+		t.Fatalf("%d %v", n, err)
+	}
+	r := NewFromBytes(bs)
+	for i := 0; i < len(bs); i++ {
+		for j := 0; j < len(bs); j++ {
+			end := i + j
+			if end > len(bs) {
+				end = len(bs)
+			}
+			expected := bs[i:end]
+			bs1 := r.Sub(i, j)
+			if !bytes.Equal(bs1, expected) {
+				t.Fatal()
+			}
+		}
+	}
+}

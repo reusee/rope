@@ -106,3 +106,28 @@ func (r *Rope) Delete(n, l int) *Rope {
 	_, r2 = r2.Split(l)
 	return r1.Concat(r2)
 }
+
+func (r *Rope) Sub(n, l int) []byte {
+	buf := new(bytes.Buffer)
+	r.sub(n, l, buf)
+	return buf.Bytes()
+}
+
+func (r *Rope) sub(n, l int, buf *bytes.Buffer) {
+	if len(r.content) > 0 { // leaf
+		end := n + l
+		if end > len(r.content) {
+			end = len(r.content)
+		}
+		buf.Write(r.content[n:end])
+	} else { // non leaf
+		if n >= r.weight { // start at right subtree
+			r.right.sub(n-r.weight, l, buf)
+		} else { // start at left subtree
+			r.left.sub(n, l, buf)
+			if n+l > r.weight {
+				r.right.sub(0, n+l-r.weight, buf)
+			}
+		}
+	}
+}
