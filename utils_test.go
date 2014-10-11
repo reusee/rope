@@ -10,41 +10,41 @@ func TestEqual(t *testing.T) {
 	}
 
 	r1 = &Rope{
-		Weight: 3,
+		weight: 3,
 	}
 	r2 = &Rope{
-		Weight: 2,
+		weight: 2,
 	}
 	if r1.Equal(r2) {
 		t.Fatal()
 	}
 
 	r1 = &Rope{
-		Bytes: []byte("foo"),
+		content: []byte("foo"),
 	}
 	r2 = &Rope{
-		Bytes: []byte("bar"),
+		content: []byte("bar"),
 	}
 	if r1.Equal(r2) {
 		t.Fatal()
 	}
 
 	r1 = &Rope{
-		Left: nil,
+		left: nil,
 	}
 	r2 = &Rope{
-		Left: &Rope{},
+		left: &Rope{},
 	}
 	if r1.Equal(r2) {
 		t.Fatal()
 	}
 
 	r1 = &Rope{
-		Right: new(Rope),
+		right: new(Rope),
 	}
 	r2 = &Rope{
-		Right: &Rope{
-			Weight: 3,
+		right: &Rope{
+			weight: 3,
 		},
 	}
 	if r1.Equal(r2) {
@@ -54,14 +54,14 @@ func TestEqual(t *testing.T) {
 
 func TestDump(t *testing.T) {
 	r := &Rope{
-		Weight: 3,
-		Left: &Rope{
-			Weight: 3,
-			Bytes:  []byte("foo"),
+		weight: 3,
+		left: &Rope{
+			weight:  3,
+			content: []byte("foo"),
 		},
-		Right: &Rope{
-			Weight: 4,
-			Bytes:  []byte("barr"),
+		right: &Rope{
+			weight:  4,
+			content: []byte("barr"),
 		},
 	}
 	r.Dump()

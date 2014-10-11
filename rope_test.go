@@ -23,8 +23,8 @@ func TestNewFromBytes(t *testing.T) {
 	// short bytes
 	r = NewFromBytes([]byte(`foo`))
 	if !r.Equal(&Rope{
-		Weight: 3,
-		Bytes:  []byte("foo"),
+		weight:  3,
+		content: []byte("foo"),
 	}) {
 		r.Dump()
 		t.Fatal()
@@ -33,14 +33,14 @@ func TestNewFromBytes(t *testing.T) {
 	// long bytes
 	r = NewFromBytes([]byte(`foobarbaz`))
 	if !r.Equal(&Rope{
-		Weight: 4,
-		Left: &Rope{
-			Weight: 4,
-			Bytes:  []byte("foob"),
+		weight: 4,
+		left: &Rope{
+			weight:  4,
+			content: []byte("foob"),
 		},
-		Right: &Rope{
-			Weight: 5,
-			Bytes:  []byte("arbaz"),
+		right: &Rope{
+			weight:  5,
+			content: []byte("arbaz"),
 		},
 	}) {
 		r.Dump()

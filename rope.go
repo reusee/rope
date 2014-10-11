@@ -1,10 +1,10 @@
 package rope
 
 type Rope struct {
-	Weight int
-	Left   *Rope
-	Right  *Rope
-	Bytes  []byte
+	weight  int
+	left    *Rope
+	right   *Rope
+	content []byte
 }
 
 var MaxLengthPerNode = 128
@@ -15,31 +15,31 @@ func NewFromBytes(bs []byte) *Rope {
 	}
 	if len(bs) < MaxLengthPerNode {
 		return &Rope{
-			Weight: len(bs),
-			Bytes:  bs,
+			weight:  len(bs),
+			content: bs,
 		}
 	}
 	leftLen := len(bs) / 2
 	return &Rope{
-		Weight: leftLen,
-		Left:   NewFromBytes(bs[:leftLen]),
-		Right:  NewFromBytes(bs[leftLen:]),
+		weight: leftLen,
+		left:   NewFromBytes(bs[:leftLen]),
+		right:  NewFromBytes(bs[leftLen:]),
 	}
 }
 
 func (r *Rope) Index(i int) byte {
-	if i >= r.Weight {
-		return r.Right.Index(i - r.Weight)
+	if i >= r.weight {
+		return r.right.Index(i - r.weight)
 	}
-	if r.Left != nil {
-		return r.Left.Index(i)
+	if r.left != nil {
+		return r.left.Index(i)
 	}
-	return r.Bytes[i]
+	return r.content[i]
 }
 
 func (r *Rope) Len() int {
 	if r == nil {
 		return 0
 	}
-	return r.Weight + r.Right.Len()
+	return r.weight + r.right.Len()
 }

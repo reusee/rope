@@ -17,16 +17,16 @@ func (r *Rope) Equal(r2 *Rope) bool {
 	if r == nil && r2 != nil || r != nil && r2 == nil {
 		return false
 	}
-	if r.Weight != r2.Weight {
+	if r.weight != r2.weight {
 		return false
 	}
-	if !(bytes.Equal(r.Bytes, r2.Bytes)) {
+	if !(bytes.Equal(r.content, r2.content)) {
 		return false
 	}
-	if !r.Left.Equal(r2.Left) {
+	if !r.left.Equal(r2.left) {
 		return false
 	}
-	if !r.Right.Equal(r2.Right) {
+	if !r.right.Equal(r2.right) {
 		return false
 	}
 	return true
@@ -37,11 +37,11 @@ func (r *Rope) Dump() {
 }
 
 func (r *Rope) dump(level int) {
-	p("%s%d |%s|\n", strings.Repeat("  ", level), r.Weight, r.Bytes)
-	if r.Left != nil {
-		r.Left.dump(level + 1)
+	p("%s%d |%s|\n", strings.Repeat("  ", level), r.weight, r.content)
+	if r.left != nil {
+		r.left.dump(level + 1)
 	}
-	if r.Right != nil {
-		r.Right.dump(level + 1)
+	if r.right != nil {
+		r.right.dump(level + 1)
 	}
 }
