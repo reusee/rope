@@ -34,14 +34,14 @@ func TestNewFromBytes(t *testing.T) {
 	// long bytes
 	r = NewFromBytes([]byte(`foobarbaz`))
 	if !r.StructEqual(&Rope{
-		weight: 4,
+		weight: 8,
 		left: &Rope{
-			weight:  4,
-			content: []byte("foob"),
+			weight:  8,
+			content: []byte("foobarba"),
 		},
 		right: &Rope{
-			weight:  5,
-			content: []byte("arbaz"),
+			weight:  1,
+			content: []byte("z"),
 		},
 	}) {
 		r.Dump()

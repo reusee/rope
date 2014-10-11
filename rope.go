@@ -15,32 +15,48 @@ type Rope struct {
 
 var MaxLengthPerNode = 128
 
-//TODO reimplement
 func NewFromBytes(bs []byte) (ret *Rope) {
 	if len(bs) == 0 {
 		return nil
 	}
-	if len(bs) < MaxLengthPerNode {
-		return &Rope{
+	slots := make([]*Rope, 32)
+	for blockIndex := 0; blockIndex < len(bs)/MaxLengthPerNode; blockIndex++ {
+		block := bs[blockIndex*MaxLengthPerNode : (blockIndex+1)*MaxLengthPerNode]
+		r := &Rope{
 			height:  1,
-			weight:  len(bs),
-			content: bs,
+			weight:  MaxLengthPerNode,
+			content: block,
+		}
+		slotIndex := 0
+		for slots[slotIndex] != nil {
+			r = &Rope{
+				height: slotIndex + 2,
+				weight: (1 << uint(slotIndex)) * MaxLengthPerNode,
+				left:   slots[slotIndex],
+				right:  r,
+			}
+			slots[slotIndex] = nil
+			slotIndex++
+		}
+		slots[slotIndex] = r
+	}
+	tailStart := len(bs) / MaxLengthPerNode * MaxLengthPerNode
+	if tailStart < len(bs) {
+		ret = &Rope{
+			height:  1,
+			weight:  len(bs) - tailStart,
+			content: bs[tailStart:],
 		}
 	}
-	leftLen := len(bs) / 2
-	ret = &Rope{
-		height: 0,
-		weight: leftLen,
-		left:   NewFromBytes(bs[:leftLen]),
-		right:  NewFromBytes(bs[leftLen:]),
+	for _, c := range slots {
+		if c != nil {
+			if ret == nil {
+				ret = c
+			} else {
+				ret = c.Concat(ret)
+			}
+		}
 	}
-	if ret.left != nil {
-		ret.height = ret.left.height
-	}
-	if ret.right != nil && ret.right.height > ret.height {
-		ret.height = ret.right.height
-	}
-	ret.height++
 	return
 }
 
