@@ -102,3 +102,17 @@ func BenchmarkSub(b *testing.B) {
 		r.Sub(300000, 128)
 	}
 }
+
+func BenchmarkNewRuneReader(b *testing.B) {
+	bytes := make([]byte, 409600)
+	n, err := rand.Read(bytes)
+	if n != len(bytes) || err != nil {
+		b.Fatalf("%d %v", n, err)
+	}
+	r := NewFromBytes(bytes)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		r.NewRuneReader()
+	}
+}
