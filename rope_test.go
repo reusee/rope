@@ -1,6 +1,7 @@
 package rope
 
 import (
+	"crypto/rand"
 	"os"
 	"testing"
 )
@@ -42,5 +43,28 @@ func TestNewFromString(t *testing.T) {
 	}) {
 		r.Dump()
 		t.Fatal()
+	}
+}
+
+func TestIndex(t *testing.T) {
+	str := `abcdefghijklmnopqrstuvwxyz0123456789`
+	r := NewFromString(str)
+	for i := 0; i < len(str); i++ {
+		if r.Index(i) != str[i] {
+			t.Fatal()
+		}
+	}
+
+	bytes := make([]byte, 4096)
+	n, err := rand.Read(bytes)
+	if n != len(bytes) || err != nil {
+		t.Fatalf("%d %v", n, err)
+	}
+	str = string(bytes)
+	r = NewFromString(str)
+	for i := 0; i < len(str); i++ {
+		if r.Index(i) != str[i] {
+			t.Fatal()
+		}
 	}
 }

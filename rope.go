@@ -7,7 +7,7 @@ type Rope struct {
 	Text   string
 }
 
-var MaxLengthPerNode = 32
+var MaxLengthPerNode = 128
 
 func NewFromString(str string) *Rope {
 	if len(str) == 0 {
@@ -25,4 +25,14 @@ func NewFromString(str string) *Rope {
 		Left:   NewFromString(str[:leftLen]),
 		Right:  NewFromString(str[leftLen:]),
 	}
+}
+
+func (r *Rope) Index(i int) uint8 {
+	if i >= r.Weight {
+		return r.Right.Index(i - r.Weight)
+	}
+	if r.Left != nil {
+		return r.Left.Index(i)
+	}
+	return r.Text[i]
 }
