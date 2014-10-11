@@ -36,3 +36,10 @@ func (r *Rope) Index(i int) uint8 {
 	}
 	return r.Text[i]
 }
+
+func (r *Rope) Len() int {
+	if r == nil {
+		return 0
+	}
+	return r.Weight + r.Right.Len()
+}

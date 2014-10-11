@@ -2,7 +2,9 @@ package rope
 
 import (
 	"crypto/rand"
+	mrand "math/rand"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -64,6 +66,18 @@ func TestIndex(t *testing.T) {
 	r = NewFromString(str)
 	for i := 0; i < len(str); i++ {
 		if r.Index(i) != str[i] {
+			t.Fatal()
+		}
+	}
+}
+
+func TestLen(t *testing.T) {
+	if NewFromString("").Len() != 0 {
+		t.Fatal()
+	}
+	for i := 0; i < 1024; i++ {
+		n := mrand.Intn(2048)
+		if NewFromString(strings.Repeat("x", n)).Len() != n {
 			t.Fatal()
 		}
 	}
