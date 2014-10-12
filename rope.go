@@ -177,3 +177,15 @@ func (r *Rope) sub(n, l int, buf *bytes.Buffer) {
 		}
 	}
 }
+
+func (r *Rope) Iter(fn func(*Rope)) {
+	if r == nil {
+		return
+	}
+	if len(r.content) > 0 {
+		fn(r)
+	} else {
+		r.left.Iter(fn)
+		r.right.Iter(fn)
+	}
+}

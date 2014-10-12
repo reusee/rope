@@ -102,3 +102,11 @@ func BenchmarkNewRuneReader(b *testing.B) {
 		r.NewRuneReader()
 	}
 }
+
+func BenchmarkIter(b *testing.B) {
+	r := getBenchRope()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		r.Iter(func(*Rope) {})
+	}
+}
