@@ -23,20 +23,10 @@ func (r *RuneReader) ReadRune() (rune, int, error) {
 	return c, n, nil
 }
 
-func (r *Rope) putRuneReader(reader *RuneReader) {
-	if r == nil {
-		return
-	}
-	if len(r.content) > 0 {
-		reader.slices = append(reader.slices, r.content)
-	} else {
-		r.left.putRuneReader(reader)
-		r.right.putRuneReader(reader)
-	}
-}
-
 func (r *Rope) NewRuneReader() *RuneReader {
 	reader := new(RuneReader)
-	r.putRuneReader(reader)
+	r.Iter(func(leaf *Rope) {
+		reader.slices = append(reader.slices, leaf.content)
+	})
 	return reader
 }

@@ -81,20 +81,10 @@ func (r *Rope) Len() int {
 
 func (r *Rope) Bytes() []byte {
 	buf := new(bytes.Buffer)
-	r.putBuffer(buf)
+	r.Iter(func(leaf *Rope) {
+		buf.Write(leaf.content)
+	})
 	return buf.Bytes()
-}
-
-func (r *Rope) putBuffer(buf *bytes.Buffer) {
-	if r == nil {
-		return
-	}
-	if len(r.content) > 0 {
-		buf.Write(r.content)
-	} else {
-		r.left.putBuffer(buf)
-		r.right.putBuffer(buf)
-	}
 }
 
 func (r *Rope) Concat(r2 *Rope) (ret *Rope) {
