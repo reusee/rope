@@ -159,11 +159,7 @@ func (r *Rope) Sub(n, l int) []byte {
 	return buf.Bytes()
 }
 
-func (r *Rope) Iter(offset int, fn func([]byte) bool) {
-	r.iter(offset, fn)
-}
-
-func (r *Rope) iter(offset int, fn func([]byte) bool) bool {
+func (r *Rope) Iter(offset int, fn func([]byte) bool) bool {
 	if r == nil {
 		return true
 	}
@@ -175,14 +171,14 @@ func (r *Rope) iter(offset int, fn func([]byte) bool) bool {
 		}
 	} else { // non leaf
 		if offset >= r.weight { // start at right subtree
-			if !r.right.iter(offset-r.weight, fn) {
+			if !r.right.Iter(offset-r.weight, fn) {
 				return false
 			}
 		} else { // start at left subtree
-			if !r.left.iter(offset, fn) {
+			if !r.left.Iter(offset, fn) {
 				return false
 			}
-			if !r.right.iter(0, fn) {
+			if !r.right.Iter(0, fn) {
 				return false
 			}
 		}
