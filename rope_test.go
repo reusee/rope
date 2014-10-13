@@ -263,12 +263,12 @@ func TestBalance(t *testing.T) {
 
 func TestIter(t *testing.T) {
 	r := NewFromBytes(bytes.Repeat([]byte("foobarbaz"), 512))
-	r.Iter(func([]byte) bool {
+	r.Iter(0, func([]byte) bool {
 		return true
 	})
 
 	n := 0
-	r.Iter(func([]byte) bool {
+	r.Iter(0, func([]byte) bool {
 		n++
 		if n == 3 {
 			return false
@@ -278,4 +278,19 @@ func TestIter(t *testing.T) {
 	if n != 3 {
 		t.Fatal()
 	}
+
+	for i := 0; i < r.Len(); i++ {
+		n := 0
+		r.Iter(i, func(bs []byte) bool {
+			n += len(bs)
+			return true
+		})
+		if n != r.Len()-i {
+			t.Fatal()
+		}
+	}
+
+	r.Iter(r.weight, func([]byte) bool {
+		return false
+	})
 }

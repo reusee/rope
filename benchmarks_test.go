@@ -107,7 +107,7 @@ func BenchmarkIter(b *testing.B) {
 	r := getBenchRope()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		r.Iter(func([]byte) bool {
+		r.Iter(0, func([]byte) bool {
 			return true
 		})
 	}

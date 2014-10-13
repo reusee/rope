@@ -81,7 +81,7 @@ func (r *Rope) Len() int {
 
 func (r *Rope) Bytes() []byte {
 	buf := new(bytes.Buffer)
-	r.Iter(func(bs []byte) bool {
+	r.Iter(0, func(bs []byte) bool {
 		buf.Write(bs)
 		return true
 	})
@@ -169,24 +169,32 @@ func (r *Rope) sub(n, l int, buf *bytes.Buffer) {
 	}
 }
 
-func (r *Rope) Iter(fn func([]byte) bool) {
-	r.iter(fn)
+func (r *Rope) Iter(offset int, fn func([]byte) bool) {
+	r.iter(offset, fn)
 }
 
-func (r *Rope) iter(fn func([]byte) bool) bool {
+func (r *Rope) iter(offset int, fn func([]byte) bool) bool {
 	if r == nil {
 		return true
 	}
-	if len(r.content) > 0 {
-		if !fn(r.content) {
-			return false
+	if len(r.content) > 0 { // leaf
+		if offset < len(r.content) {
+			if !fn(r.content[offset:]) {
+				return false
+			}
 		}
-	} else {
-		if !r.left.iter(fn) {
-			return false
-		}
-		if !r.right.iter(fn) {
-			return false
+	} else { // non leaf
+		if offset >= r.weight { // start at right subtree
+			if !r.right.iter(offset-r.weight, fn) {
+				return false
+			}
+		} else { // start at left subtree
+			if !r.left.iter(offset, fn) {
+				return false
+			}
+			if !r.right.iter(0, fn) {
+				return false
+			}
 		}
 	}
 	return true

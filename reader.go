@@ -25,7 +25,7 @@ func (r *RuneReader) ReadRune() (rune, int, error) {
 
 func (r *Rope) NewRuneReader() *RuneReader {
 	reader := new(RuneReader)
-	r.Iter(func(bs []byte) bool {
+	r.Iter(0, func(bs []byte) bool {
 		reader.slices = append(reader.slices, bs)
 		return true
 	})
