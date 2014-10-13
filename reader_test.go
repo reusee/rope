@@ -9,6 +9,7 @@ import (
 func TestRuneReader(t *testing.T) {
 	r := NewFromBytes([]byte(`我能吞zuo下da玻si璃而不伤身体`))
 	reader := r.NewRuneReader()
+	defer reader.Close()
 	type info struct {
 		r rune
 		n int
@@ -53,6 +54,7 @@ func TestRuneReader(t *testing.T) {
 
 	r = NewFromBytes(nil)
 	reader = r.NewRuneReader()
+	defer reader.Close()
 	c, n, err := reader.ReadRune()
 	if c != utf8.RuneError || n != 1 || err == nil {
 		t.Fatal()
@@ -62,8 +64,17 @@ func TestRuneReader(t *testing.T) {
 func TestRuneRegexp(t *testing.T) {
 	r := NewFromBytes([]byte(`我能吞zuo下da玻si璃而不伤身体`))
 	reader := r.NewRuneReader()
+	defer reader.Close()
 	loc := regexp.MustCompile(`[a-z]+`).FindReaderIndex(reader)
 	if string(r.Sub(loc[0], loc[1]-loc[0])) != "zuo" {
 		t.Fatal()
+	}
+}
+
+func BenchmarkNewRuneReader(b *testing.B) {
+	r := getBenchRope()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		r.NewRuneReader().Close()
 	}
 }

@@ -95,14 +95,6 @@ func BenchmarkSub(b *testing.B) {
 	}
 }
 
-func BenchmarkNewRuneReader(b *testing.B) {
-	r := getBenchRope()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		r.NewRuneReader()
-	}
-}
-
 func BenchmarkIter(b *testing.B) {
 	r := getBenchRope()
 	b.ResetTimer()
