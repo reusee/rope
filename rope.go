@@ -81,8 +81,9 @@ func (r *Rope) Len() int {
 
 func (r *Rope) Bytes() []byte {
 	buf := new(bytes.Buffer)
-	r.Iter(func(leaf *Rope) {
+	r.Iter(func(leaf *Rope) bool {
 		buf.Write(leaf.content)
+		return true
 	})
 	return buf.Bytes()
 }
@@ -168,14 +169,25 @@ func (r *Rope) sub(n, l int, buf *bytes.Buffer) {
 	}
 }
 
-func (r *Rope) Iter(fn func(*Rope)) {
+func (r *Rope) Iter(fn func(*Rope) bool) {
+	r.iter(fn)
+}
+
+func (r *Rope) iter(fn func(*Rope) bool) bool {
 	if r == nil {
-		return
+		return true
 	}
 	if len(r.content) > 0 {
-		fn(r)
+		if !fn(r) {
+			return false
+		}
 	} else {
-		r.left.Iter(fn)
-		r.right.Iter(fn)
+		if !r.left.iter(fn) {
+			return false
+		}
+		if !r.right.iter(fn) {
+			return false
+		}
 	}
+	return true
 }

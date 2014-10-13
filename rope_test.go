@@ -260,3 +260,22 @@ func TestBalance(t *testing.T) {
 		t.Fatal()
 	}
 }
+
+func TestIter(t *testing.T) {
+	r := NewFromBytes(bytes.Repeat([]byte("foobarbaz"), 512))
+	r.Iter(func(leaf *Rope) bool {
+		return true
+	})
+
+	n := 0
+	r.Iter(func(_ *Rope) bool {
+		n++
+		if n == 3 {
+			return false
+		}
+		return true
+	})
+	if n != 3 {
+		t.Fatal()
+	}
+}

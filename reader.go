@@ -25,8 +25,9 @@ func (r *RuneReader) ReadRune() (rune, int, error) {
 
 func (r *Rope) NewRuneReader() *RuneReader {
 	reader := new(RuneReader)
-	r.Iter(func(leaf *Rope) {
+	r.Iter(func(leaf *Rope) bool {
 		reader.slices = append(reader.slices, leaf.content)
+		return true
 	})
 	return reader
 }
