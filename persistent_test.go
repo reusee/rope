@@ -54,7 +54,6 @@ func TestPersistent(t *testing.T) {
 	}
 
 	// delete
-	bs = []byte("foobarbaz")
 	r = NewFromBytes(bs)
 	ropes = ropes[0:0]
 	for i := 0; i < len(bs); i++ {
