@@ -2,7 +2,9 @@ package rope
 
 import (
 	"bytes"
+	"crypto/rand"
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -44,4 +46,13 @@ func (r *Rope) dump(level int, prefix string) {
 	if r.right != nil {
 		r.right.dump(level+1, ">")
 	}
+}
+
+func getRandomBytes(l int) []byte {
+	bytes := make([]byte, l)
+	n, err := rand.Read(bytes)
+	if n != len(bytes) || err != nil {
+		log.Fatalf("%d %v", n, err)
+	}
+	return bytes
 }

@@ -90,7 +90,6 @@ func (r *Rope) Bytes() []byte {
 
 func (r *Rope) Concat(r2 *Rope) (ret *Rope) {
 	ret = &Rope{
-		height: 0,
 		weight: r.Len(),
 		left:   r,
 		right:  r2,

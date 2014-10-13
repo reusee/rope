@@ -1,20 +1,11 @@
 package rope
 
-import (
-	"crypto/rand"
-	"log"
-	"testing"
-)
+import "testing"
 
 const benchBytesLen = 409600
 
 func getBenchBytes() []byte {
-	bytes := make([]byte, benchBytesLen)
-	n, err := rand.Read(bytes)
-	if n != len(bytes) || err != nil {
-		log.Fatalf("%d %v", n, err)
-	}
-	return bytes
+	return getRandomBytes(benchBytesLen)
 }
 
 func getBenchRope() *Rope {
