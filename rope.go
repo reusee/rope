@@ -104,7 +104,9 @@ func (r *Rope) Concat(r2 *Rope) (ret *Rope) {
 	if ret.right != nil && ret.right.height > ret.height {
 		ret.height = ret.right.height
 	}
-	if ret.left != nil && ret.left.balanced && ret.right != nil && ret.right.balanced && ret.left.height == ret.right.height {
+	if ret.left != nil && ret.left.balanced &&
+		ret.right != nil && ret.right.balanced &&
+		ret.left.height == ret.right.height {
 		ret.balanced = true
 	}
 	ret.height++
@@ -112,7 +114,65 @@ func (r *Rope) Concat(r2 *Rope) (ret *Rope) {
 	if !ret.balanced {
 		l := int((math.Ceil(math.Log2(float64((ret.Len()/MaxLengthPerNode)+1))) + 1) * 1.5)
 		if ret.height > l {
-			ret = NewFromBytes(ret.Bytes())
+			ret = ret.rebalance()
+		}
+	}
+	return
+}
+
+func (r *Rope) rebalance() (ret *Rope) {
+	var currentBytes []byte
+	slots := make([]*Rope, 32)
+	r.iterNodes(func(node *Rope) bool {
+		var balancedNode *Rope
+		iterSubNodes := true
+		if len(currentBytes) == 0 && node.balanced { // balanced, insert to slots
+			balancedNode = node
+			iterSubNodes = false
+		} else { // collect bytes
+			currentBytes = append(currentBytes, node.content...)
+			if len(currentBytes) >= MaxLengthPerNode { // a full leaf
+				balancedNode = &Rope{
+					height:   1,
+					weight:   MaxLengthPerNode,
+					balanced: true,
+					content:  currentBytes[:MaxLengthPerNode],
+				}
+				currentBytes = currentBytes[MaxLengthPerNode:]
+			}
+		}
+		if balancedNode != nil {
+			slotIndex := balancedNode.height - 1
+			for slots[slotIndex] != nil {
+				balancedNode = &Rope{
+					height:   balancedNode.height + 1,
+					weight:   slots[slotIndex].Len(),
+					left:     slots[slotIndex],
+					right:    balancedNode,
+					balanced: true,
+				}
+				slots[slotIndex] = nil
+				slotIndex++
+			}
+			slots[slotIndex] = balancedNode
+		}
+		return iterSubNodes
+	})
+	if len(currentBytes) > 0 {
+		ret = &Rope{
+			height:   1,
+			weight:   len(currentBytes),
+			balanced: false,
+			content:  currentBytes,
+		}
+	}
+	for _, c := range slots {
+		if c != nil {
+			if ret == nil {
+				ret = c
+			} else {
+				ret = c.Concat(ret)
+			}
 		}
 	}
 	return
