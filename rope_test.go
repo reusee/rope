@@ -3,11 +3,21 @@ package rope
 import (
 	"bytes"
 	"crypto/rand"
+	"log"
 	"math"
 	mrand "math/rand"
 	"os"
 	"testing"
 )
+
+func getRandomBytes(l int) []byte {
+	bytes := make([]byte, l)
+	n, err := rand.Read(bytes)
+	if n != len(bytes) || err != nil {
+		log.Fatalf("%d %v", n, err)
+	}
+	return bytes
+}
 
 func TestMain(m *testing.M) {
 	MaxLengthPerNode = 8
