@@ -294,3 +294,17 @@ func TestIter(t *testing.T) {
 		return false
 	})
 }
+
+func TestIterNodes(t *testing.T) {
+	r := NewFromBytes(bytes.Repeat([]byte("foobarbaz"), 512))
+	buf := new(bytes.Buffer)
+	r.iterNodes(func(n *Rope) bool {
+		if len(n.content) > 0 {
+			buf.Write(n.content)
+		}
+		return true
+	})
+	if !bytes.Equal(buf.Bytes(), r.Bytes()) {
+		t.Fatal()
+	}
+}

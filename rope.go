@@ -193,3 +193,13 @@ func (r *Rope) Iter(offset int, fn func([]byte) bool) bool {
 	}
 	return true
 }
+
+func (r *Rope) iterNodes(fn func(*Rope) bool) {
+	if r == nil {
+		return
+	}
+	if fn(r) {
+		r.left.iterNodes(fn)
+		r.right.iterNodes(fn)
+	}
+}
