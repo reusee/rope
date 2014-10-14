@@ -95,3 +95,12 @@ func BenchmarkIter(b *testing.B) {
 		})
 	}
 }
+
+func BenchmarkRebalance(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		r := NewFromBytes(nil)
+		for j := 0; j < 2048; j++ {
+			r = r.Concat(NewFromBytes([]byte{'x'}))
+		}
+	}
+}
