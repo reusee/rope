@@ -6,11 +6,12 @@ import (
 )
 
 type Rope struct {
-	height  int
-	weight  int
-	left    *Rope
-	right   *Rope
-	content []byte
+	height   int
+	weight   int
+	left     *Rope
+	right    *Rope
+	content  []byte
+	balanced bool
 }
 
 var MaxLengthPerNode = 128
@@ -24,17 +25,19 @@ func NewFromBytes(bs []byte) (ret *Rope) {
 	var r *Rope
 	for blockIndex := 0; blockIndex < len(bs)/MaxLengthPerNode; blockIndex++ {
 		r = &Rope{
-			height:  1,
-			weight:  MaxLengthPerNode,
-			content: bs[blockIndex*MaxLengthPerNode : (blockIndex+1)*MaxLengthPerNode],
+			height:   1,
+			weight:   MaxLengthPerNode,
+			content:  bs[blockIndex*MaxLengthPerNode : (blockIndex+1)*MaxLengthPerNode],
+			balanced: true,
 		}
 		slotIndex = 0
 		for slots[slotIndex] != nil {
 			r = &Rope{
-				height: slotIndex + 2,
-				weight: (1 << uint(slotIndex)) * MaxLengthPerNode,
-				left:   slots[slotIndex],
-				right:  r,
+				height:   slotIndex + 2,
+				weight:   (1 << uint(slotIndex)) * MaxLengthPerNode,
+				left:     slots[slotIndex],
+				right:    r,
+				balanced: true,
 			}
 			slots[slotIndex] = nil
 			slotIndex++
@@ -44,9 +47,10 @@ func NewFromBytes(bs []byte) (ret *Rope) {
 	tailStart := len(bs) / MaxLengthPerNode * MaxLengthPerNode
 	if tailStart < len(bs) {
 		ret = &Rope{
-			height:  1,
-			weight:  len(bs) - tailStart,
-			content: bs[tailStart:],
+			height:   1,
+			weight:   len(bs) - tailStart,
+			content:  bs[tailStart:],
+			balanced: false,
 		}
 	}
 	for _, c := range slots {
@@ -100,11 +104,16 @@ func (r *Rope) Concat(r2 *Rope) (ret *Rope) {
 	if ret.right != nil && ret.right.height > ret.height {
 		ret.height = ret.right.height
 	}
+	if ret.left != nil && ret.left.balanced && ret.right != nil && ret.right.balanced && ret.left.height == ret.right.height {
+		ret.balanced = true
+	}
 	ret.height++
 	// check and rebalance
-	l := int((math.Ceil(math.Log2(float64((ret.Len()/MaxLengthPerNode)+1))) + 1) * 1.5)
-	if ret.height > l {
-		ret = NewFromBytes(ret.Bytes())
+	if !ret.balanced {
+		l := int((math.Ceil(math.Log2(float64((ret.Len()/MaxLengthPerNode)+1))) + 1) * 1.5)
+		if ret.height > l {
+			ret = NewFromBytes(ret.Bytes())
+		}
 	}
 	return
 }
