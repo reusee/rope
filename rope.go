@@ -254,6 +254,36 @@ func (r *Rope) Iter(offset int, fn func([]byte) bool) bool {
 	return true
 }
 
+func (r *Rope) IterBackward(offset int, fn func([]byte) bool) bool {
+	if r == nil {
+		return true
+	}
+	if len(r.content) > 0 { // leaf
+		content := r.content[:offset]
+		if len(content) == 0 {
+			return true
+		}
+		bs := reversedBytes(content)
+		if !fn(bs) {
+			return false
+		}
+	} else { // non leaf
+		if offset >= r.weight { // start at right subtree
+			if !r.right.IterBackward(offset-r.weight, fn) {
+				return false
+			}
+			if !r.left.IterBackward(r.weight, fn) {
+				return false
+			}
+		} else { // start at left subtree
+			if !r.left.IterBackward(offset, fn) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 func (r *Rope) iterNodes(fn func(*Rope) bool) {
 	if r == nil {
 		return

@@ -45,3 +45,11 @@ func (r *Rope) dump(level int, prefix string) {
 		r.right.dump(level+1, ">")
 	}
 }
+
+func reversedBytes(bs []byte) []byte {
+	ret := make([]byte, len(bs))
+	for i, b := range bs {
+		ret[len(bs)-i-1] = b
+	}
+	return ret
+}

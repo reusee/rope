@@ -1,6 +1,9 @@
 package rope
 
-import "testing"
+import (
+	"bytes"
+	"testing"
+)
 
 func TestStructEqual(t *testing.T) {
 	r1 := &Rope{}
@@ -65,4 +68,13 @@ func TestDump(t *testing.T) {
 		},
 	}
 	r.Dump()
+}
+
+func TestReversedBytes(t *testing.T) {
+	if !bytes.Equal(reversedBytes(nil), nil) {
+		t.Fatal()
+	}
+	if !bytes.Equal(reversedBytes([]byte("foobarbaz")), []byte("zabraboof")) {
+		t.Fatal()
+	}
 }

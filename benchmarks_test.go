@@ -104,3 +104,13 @@ func BenchmarkRebalance(b *testing.B) {
 		}
 	}
 }
+
+func BenchmarkIterBackward(b *testing.B) {
+	r := getBenchRope()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		r.IterBackward(r.Len(), func([]byte) bool {
+			return true
+		})
+	}
+}

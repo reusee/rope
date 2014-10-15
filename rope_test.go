@@ -318,3 +318,54 @@ func TestIterNodes(t *testing.T) {
 		t.Fatal()
 	}
 }
+
+func TestIterBackward(t *testing.T) {
+	r := NewFromBytes(nil)
+	r.IterBackward(0, func([]byte) bool {
+		t.Fatal()
+		return true
+	})
+
+	bs := bytes.Repeat([]byte("foobarbaz"), 512)
+	r = NewFromBytes(bs)
+	for i := 0; i <= r.Len(); i++ {
+		buf := new(bytes.Buffer)
+		r.IterBackward(i, func(bs []byte) bool {
+			buf.Write(bs)
+			return true
+		})
+		if !bytes.Equal(buf.Bytes(), reversedBytes(bs[:i])) {
+			t.Fatal()
+		}
+	}
+
+	n := 0
+	r.IterBackward(r.Len(), func([]byte) bool {
+		n++
+		return false
+	})
+	if n != 1 {
+		t.Fatal()
+	}
+
+	n = 0
+	r.IterBackward(r.Len(), func(bs []byte) bool {
+		n += len(bs)
+		if n > r.Len()-r.weight {
+			return false
+		}
+		return true
+	})
+	if n != 520 {
+		t.Fatal()
+	}
+
+	n = 0
+	r.IterBackward(r.weight-8, func(bs []byte) bool {
+		n++
+		return false
+	})
+	if n != 1 {
+		t.Fatal()
+	}
+}
