@@ -295,7 +295,7 @@ func (r *Rope) iterNodes(fn func(*Rope) bool) {
 	}
 }
 
-func (r *Rope) IterRune(offset int, fn func(rune) bool) {
+func (r *Rope) IterRune(offset int, fn func(rune, int) bool) {
 	var bs []byte
 	stopped := false
 	r.Iter(offset, func(slice []byte) bool {
@@ -306,7 +306,7 @@ func (r *Rope) IterRune(offset int, fn func(rune) bool) {
 			if ru == utf8.RuneError {
 				return false
 			}
-			if !fn(ru) {
+			if !fn(ru, l) {
 				stopped = true
 				return false
 			}
@@ -314,9 +314,9 @@ func (r *Rope) IterRune(offset int, fn func(rune) bool) {
 		return true
 	})
 	if !stopped && len(bs) > 0 {
-		ru, _ := utf8.DecodeRune(bs)
+		ru, l := utf8.DecodeRune(bs)
 		if ru != utf8.RuneError {
-			fn(ru)
+			fn(ru, l)
 		}
 	}
 }

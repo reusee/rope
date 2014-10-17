@@ -378,7 +378,7 @@ func TestIterRune(t *testing.T) {
 		'而', '不', '伤', '身', '体',
 	}
 	i := 0
-	r.IterRune(0, func(c rune) bool {
+	r.IterRune(0, func(c rune, l int) bool {
 		if c != expected[i] {
 			t.Fatal()
 		}
@@ -394,7 +394,7 @@ func TestIterRune(t *testing.T) {
 		's', 'i', '璃', '而', '不', '伤', '身', '体',
 	}
 	i = 0
-	r.IterRune(9, func(c rune) bool {
+	r.IterRune(9, func(c rune, l int) bool {
 		if c != expected[i] {
 			t.Fatal()
 		}
@@ -410,7 +410,7 @@ func TestIterRune(t *testing.T) {
 		's', 'i', '璃',
 	}
 	i = 0
-	r.IterRune(9, func(c rune) bool {
+	r.IterRune(9, func(c rune, l int) bool {
 		p("%d\n", i)
 		if c != expected[i] {
 			t.Fatal()
@@ -425,7 +425,7 @@ func TestIterRune(t *testing.T) {
 		t.Fatal()
 	}
 
-	r.IterRune(1, func(c rune) bool {
+	r.IterRune(1, func(c rune, l int) bool {
 		t.Fatal()
 		return true
 	})
