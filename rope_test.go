@@ -411,7 +411,6 @@ func TestIterRune(t *testing.T) {
 	}
 	i = 0
 	r.IterRune(9, func(c rune, l int) bool {
-		p("%d\n", i)
 		if c != expected[i] {
 			t.Fatal()
 		}
@@ -429,4 +428,14 @@ func TestIterRune(t *testing.T) {
 		t.Fatal()
 		return true
 	})
+
+	r = NewFromBytes([]byte("foobarbazfoo"))
+	n := 0
+	r.IterRune(0, func(ru rune, l int) bool {
+		n++
+		return true
+	})
+	if n != 12 {
+		t.Fatal()
+	}
 }

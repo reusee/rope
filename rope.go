@@ -314,9 +314,14 @@ func (r *Rope) IterRune(offset int, fn func(rune, int) bool) {
 		return true
 	})
 	if !stopped && len(bs) > 0 {
-		ru, l := utf8.DecodeRune(bs)
-		if ru != utf8.RuneError {
-			fn(ru, l)
+		for {
+			ru, l := utf8.DecodeRune(bs)
+			bs = bs[l:]
+			if ru != utf8.RuneError {
+				fn(ru, l)
+			} else {
+				break
+			}
 		}
 	}
 }
