@@ -369,3 +369,64 @@ func TestIterBackward(t *testing.T) {
 		t.Fatal()
 	}
 }
+
+func TestIterRune(t *testing.T) {
+	r := NewFromBytes([]byte("我能吞zuo下da玻si璃而不伤身体"))
+	expected := []rune{
+		'我', '能', '吞', 'z', 'u', 'o',
+		'下', 'd', 'a', '玻', 's', 'i', '璃',
+		'而', '不', '伤', '身', '体',
+	}
+	i := 0
+	r.IterRune(0, func(c rune) bool {
+		if c != expected[i] {
+			t.Fatal()
+		}
+		i++
+		return true
+	})
+	if i != len(expected) {
+		t.Fatal()
+	}
+
+	expected = []rune{
+		'z', 'u', 'o', '下', 'd', 'a', '玻',
+		's', 'i', '璃', '而', '不', '伤', '身', '体',
+	}
+	i = 0
+	r.IterRune(9, func(c rune) bool {
+		if c != expected[i] {
+			t.Fatal()
+		}
+		i++
+		return true
+	})
+	if i != len(expected) {
+		t.Fatal()
+	}
+
+	expected = []rune{
+		'z', 'u', 'o', '下', 'd', 'a', '玻',
+		's', 'i', '璃',
+	}
+	i = 0
+	r.IterRune(9, func(c rune) bool {
+		p("%d\n", i)
+		if c != expected[i] {
+			t.Fatal()
+		}
+		i++
+		if c == '璃' {
+			return false
+		}
+		return true
+	})
+	if i != len(expected) {
+		t.Fatal()
+	}
+
+	r.IterRune(1, func(c rune) bool {
+		t.Fatal()
+		return true
+	})
+}

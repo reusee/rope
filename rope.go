@@ -3,6 +3,7 @@ package rope
 import (
 	"bytes"
 	"math"
+	"unicode/utf8"
 )
 
 type Rope struct {
@@ -291,5 +292,31 @@ func (r *Rope) iterNodes(fn func(*Rope) bool) {
 	if fn(r) {
 		r.left.iterNodes(fn)
 		r.right.iterNodes(fn)
+	}
+}
+
+func (r *Rope) IterRune(offset int, fn func(rune) bool) {
+	var bs []byte
+	stopped := false
+	r.Iter(offset, func(slice []byte) bool {
+		bs = append(bs, slice...)
+		for len(bs) >= 4 {
+			ru, l := utf8.DecodeRune(bs)
+			bs = bs[l:]
+			if ru == utf8.RuneError {
+				return false
+			}
+			if !fn(ru) {
+				stopped = true
+				return false
+			}
+		}
+		return true
+	})
+	if !stopped && len(bs) > 0 {
+		ru, _ := utf8.DecodeRune(bs)
+		if ru != utf8.RuneError {
+			fn(ru)
+		}
 	}
 }
