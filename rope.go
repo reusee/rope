@@ -1,7 +1,6 @@
 package rope
 
 import (
-	"bytes"
 	"math"
 	"unicode/utf8"
 )
@@ -216,18 +215,21 @@ func (r *Rope) Delete(n, l int) *Rope {
 }
 
 func (r *Rope) Sub(n, l int) []byte {
-	buf := new(bytes.Buffer)
+	ret := make([]byte, l)
+	i := 0
 	r.Iter(n, func(bs []byte) bool {
 		if l >= len(bs) {
-			buf.Write(bs)
+			copy(ret[i:], bs)
+			i += len(bs)
 			l -= len(bs)
 			return true
 		} else {
-			buf.Write(bs[:l])
+			copy(ret[i:], bs[:l])
+			i += l
 			return false
 		}
 	})
-	return buf.Bytes()
+	return ret[:i]
 }
 
 func (r *Rope) Iter(offset int, fn func([]byte) bool) bool {
