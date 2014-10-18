@@ -1,6 +1,9 @@
 package rope
 
-import "testing"
+import (
+	"bytes"
+	"testing"
+)
 
 const benchBytesLen = 409600
 
@@ -110,6 +113,16 @@ func BenchmarkIterBackward(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		r.IterBackward(r.Len(), func([]byte) bool {
+			return true
+		})
+	}
+}
+
+func BenchmarkIterRune(b *testing.B) {
+	r := NewFromBytes(bytes.Repeat([]byte("foobarbaz"), 1024))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		r.IterRune(0, func(ru rune, l int) bool {
 			return true
 		})
 	}
