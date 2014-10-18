@@ -85,12 +85,14 @@ func (r *Rope) Len() int {
 }
 
 func (r *Rope) Bytes() []byte {
-	buf := new(bytes.Buffer)
+	ret := make([]byte, r.Len())
+	i := 0
 	r.Iter(0, func(bs []byte) bool {
-		buf.Write(bs)
+		copy(ret[i:], bs)
+		i += len(bs)
 		return true
 	})
-	return buf.Bytes()
+	return ret
 }
 
 func (r *Rope) Concat(r2 *Rope) (ret *Rope) {
