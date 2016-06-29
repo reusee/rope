@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-const benchBytesLen = 409600
+const benchBytesLen = 1 * 1024 * 1024
 
 func getBenchBytes() []byte {
 	return getRandomBytes(benchBytesLen)
@@ -28,7 +28,7 @@ func BenchmarkIndex(b *testing.B) {
 	r := getBenchRope()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		r.Index(300000)
+		r.Index(512 * 1024)
 	}
 }
 
@@ -61,7 +61,7 @@ func BenchmarkSplit(b *testing.B) {
 	r := getBenchRope()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		r.Split(300000)
+		r.Split(512 * 1024)
 	}
 }
 
@@ -69,7 +69,7 @@ func BenchmarkInsert(b *testing.B) {
 	r := getBenchRope()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		r.Insert(300000, []byte("foobar"))
+		r.Insert(128*1024, []byte("foobar"))
 	}
 }
 
@@ -77,7 +77,7 @@ func BenchmarkDelete(b *testing.B) {
 	r := getBenchRope()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		r.Delete(300000, 400000)
+		r.Delete(128*1024, 200*1024)
 	}
 }
 
@@ -85,7 +85,7 @@ func BenchmarkSub(b *testing.B) {
 	r := getBenchRope()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		r.Sub(300000, 128)
+		r.Sub(128*1024, 1024)
 	}
 }
 
