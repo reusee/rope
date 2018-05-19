@@ -1,58 +1,103 @@
 package rope
 
 import (
+	"bytes"
+	"io"
 	"math"
+	"strings"
+	"sync"
+	"sync/atomic"
 	"unicode/utf8"
 )
 
+// Key -> *Rope
+//TODO eviction
+var cache sync.Map
+
+type Key struct {
+	left    *Rope
+	right   *Rope
+	content string
+}
+
 type Rope struct {
-	height   int
-	weight   int
 	left     *Rope
 	right    *Rope
 	content  []byte
+	serial   int64
+	height   int
+	weight   int
 	balanced bool
 }
 
+var nextSerial int64
+
 var MaxLengthPerNode = 128
 
-func NewFromBytes(bs []byte) (ret *Rope) {
-	if len(bs) == 0 {
-		return nil
-	}
-	slots := make([]*Rope, 32)
-	var slotIndex int
-	var r *Rope
-	for blockIndex := 0; blockIndex < len(bs)/MaxLengthPerNode; blockIndex++ {
-		r = &Rope{
-			height:   1,
-			weight:   MaxLengthPerNode,
-			content:  bs[blockIndex*MaxLengthPerNode : (blockIndex+1)*MaxLengthPerNode],
-			balanced: true,
+func NewFromReader(r io.Reader) (ret *Rope, err error) {
+	slots := make([]*Rope, 64)
+
+	for {
+		buf := make([]byte, MaxLengthPerNode)
+		l, err := r.Read(buf)
+		if l == 0 {
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				return nil, err
+			}
 		}
-		slotIndex = 0
+
+		key := Key{
+			content: string(buf[:l]),
+		}
+		var rope *Rope
+		if v, ok := cache.Load(key); ok {
+			rope = v.(*Rope)
+		} else {
+			rope = &Rope{
+				content:  buf[:l],
+				serial:   atomic.AddInt64(&nextSerial, 1),
+				height:   1,
+				weight:   l,
+				balanced: l == len(buf),
+			}
+			cache.Store(key, rope)
+		}
+
+		slotIndex := 0
 		for slots[slotIndex] != nil {
-			r = &Rope{
-				height:   slotIndex + 2,
-				weight:   (1 << uint(slotIndex)) * MaxLengthPerNode,
-				left:     slots[slotIndex],
-				right:    r,
-				balanced: true,
+			key := Key{
+				left:  slots[slotIndex],
+				right: rope,
+			}
+			if v, ok := cache.Load(key); ok {
+				rope = v.(*Rope)
+			} else {
+				rope = &Rope{
+					left:     slots[slotIndex],
+					right:    rope,
+					serial:   atomic.AddInt64(&nextSerial, 1),
+					height:   slotIndex + 2,
+					weight:   slots[slotIndex].Len(),
+					balanced: true,
+				}
+				cache.Store(key, rope)
 			}
 			slots[slotIndex] = nil
 			slotIndex++
 		}
-		slots[slotIndex] = r
-	}
-	tailStart := len(bs) / MaxLengthPerNode * MaxLengthPerNode
-	if tailStart < len(bs) {
-		ret = &Rope{
-			height:   1,
-			weight:   len(bs) - tailStart,
-			content:  bs[tailStart:],
-			balanced: false,
+		slots[slotIndex] = rope
+
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
 		}
 	}
+
 	for _, c := range slots {
 		if c != nil {
 			if ret == nil {
@@ -63,6 +108,22 @@ func NewFromBytes(bs []byte) (ret *Rope) {
 		}
 	}
 	return
+}
+
+func NewFromString(s string) *Rope {
+	r, err := NewFromReader(strings.NewReader(s))
+	if err != nil {
+		panic(err)
+	}
+	return r
+}
+
+func NewFromBytes(bs []byte) *Rope {
+	r, err := NewFromReader(bytes.NewReader(bs))
+	if err != nil {
+		panic(err)
+	}
+	return r
 }
 
 func (r *Rope) Index(i int) byte {
@@ -95,10 +156,18 @@ func (r *Rope) Bytes() []byte {
 }
 
 func (r *Rope) Concat(r2 *Rope) (ret *Rope) {
+	key := Key{
+		left:  r,
+		right: r2,
+	}
+	if v, ok := cache.Load(key); ok {
+		return v.(*Rope)
+	}
 	ret = &Rope{
-		weight: r.Len(),
 		left:   r,
 		right:  r2,
+		serial: atomic.AddInt64(&nextSerial, 1),
+		weight: r.Len(),
 	}
 	if ret.left != nil {
 		ret.height = ret.left.height
@@ -119,6 +188,7 @@ func (r *Rope) Concat(r2 *Rope) (ret *Rope) {
 			ret = ret.rebalance()
 		}
 	}
+	cache.Store(key, ret)
 	return
 }
 
@@ -134,11 +204,20 @@ func (r *Rope) rebalance() (ret *Rope) {
 		} else { // collect bytes
 			currentBytes = append(currentBytes, node.content...)
 			if len(currentBytes) >= MaxLengthPerNode { // a full leaf
-				balancedNode = &Rope{
-					height:   1,
-					weight:   MaxLengthPerNode,
-					balanced: true,
-					content:  currentBytes[:MaxLengthPerNode],
+				key := Key{
+					content: string(currentBytes[:MaxLengthPerNode]),
+				}
+				if v, ok := cache.Load(key); ok {
+					balancedNode = v.(*Rope)
+				} else {
+					balancedNode = &Rope{
+						content:  currentBytes[:MaxLengthPerNode],
+						serial:   atomic.AddInt64(&nextSerial, 1),
+						height:   1,
+						weight:   MaxLengthPerNode,
+						balanced: true,
+					}
+					cache.Store(key, balancedNode)
 				}
 				currentBytes = currentBytes[MaxLengthPerNode:]
 			}
@@ -146,12 +225,22 @@ func (r *Rope) rebalance() (ret *Rope) {
 		if balancedNode != nil {
 			slotIndex := balancedNode.height - 1
 			for slots[slotIndex] != nil {
-				balancedNode = &Rope{
-					height:   balancedNode.height + 1,
-					weight:   slots[slotIndex].Len(),
-					left:     slots[slotIndex],
-					right:    balancedNode,
-					balanced: true,
+				key := Key{
+					left:  slots[slotIndex],
+					right: balancedNode,
+				}
+				if v, ok := cache.Load(key); ok {
+					balancedNode = v.(*Rope)
+				} else {
+					balancedNode = &Rope{
+						left:     slots[slotIndex],
+						right:    balancedNode,
+						serial:   atomic.AddInt64(&nextSerial, 1),
+						height:   balancedNode.height + 1,
+						weight:   slots[slotIndex].Len(),
+						balanced: true,
+					}
+					cache.Store(key, balancedNode)
 				}
 				slots[slotIndex] = nil
 				slotIndex++
@@ -161,11 +250,20 @@ func (r *Rope) rebalance() (ret *Rope) {
 		return iterSubNodes
 	})
 	if len(currentBytes) > 0 {
-		ret = &Rope{
-			height:   1,
-			weight:   len(currentBytes),
-			balanced: false,
-			content:  currentBytes,
+		key := Key{
+			content: string(currentBytes),
+		}
+		if v, ok := cache.Load(key); ok {
+			ret = v.(*Rope)
+		} else {
+			ret = &Rope{
+				content:  currentBytes,
+				serial:   atomic.AddInt64(&nextSerial, 1),
+				height:   1,
+				weight:   len(currentBytes),
+				balanced: false,
+			}
+			cache.Store(key, ret)
 		}
 	}
 	for _, c := range slots {
