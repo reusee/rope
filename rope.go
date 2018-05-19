@@ -35,7 +35,7 @@ var nextSerial int64
 var MaxLengthPerNode = 128
 
 func NewFromReader(r io.Reader) (ret *Rope, err error) {
-	slots := make([]*Rope, 64)
+	slots := make([]*Rope, 32)
 
 	for {
 		buf := make([]byte, MaxLengthPerNode)
@@ -194,7 +194,7 @@ func (r *Rope) Concat(r2 *Rope) (ret *Rope) {
 
 func (r *Rope) rebalance() (ret *Rope) {
 	var currentBytes []byte
-	slots := make([]*Rope, 32)
+	slots := make([]*Rope, 64)
 	r.iterNodes(func(node *Rope) bool {
 		var balancedNode *Rope
 		iterSubNodes := true
